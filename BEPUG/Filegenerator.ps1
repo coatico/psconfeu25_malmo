@@ -17,7 +17,7 @@ for ($i = 0; $i -lt 50000; $i++) {
     $operator = $rnd.Next(101, 121)
     $batch = $rnd.Next(1000, 1101)
     $statusId = $rnd.Next(3)
-    $temp = [math]::Round($rnd.Next(60,110) + $rnd.NextDouble(), 2)
+    $temp = [math]::Round($rnd.Next(60,110) + $rnd.next(), 2)
     $load = $rnd.Next(101)
     $isErrorValue = ($rnd.Next(8) -eq 3)
     
