@@ -10,30 +10,33 @@ $rnd = [System.Random]::new()
 # Pre-calculate all timestamps for maximum speed
 $timestamps = [string[]]::new(50000)
 for ($i = 0; $i -lt 50000; $i++) {$timestamps[$i] = [DateTime]::new($baseTicks - ($i * $oneSecondTicks)).ToString("yyyy-MM-dd HH:mm:ss")}
-# Single optimized loop - using faster temp calculation and -join
+
+# Hyper-optimized loop using direct array access and minimal operations
 for ($i = 0; $i -lt 50000; $i++) { 
     $plcId = $rnd.Next(4)
     $operator = $rnd.Next(101, 121)
     $batch = $rnd.Next(1000, 1101)
     $statusId = $rnd.Next(3)
-    $temp =[math]::Round( $rnd.Next(60,110) + $rnd.Next(),2)
+    $temp = [math]::Round($rnd.Next(60,110) + $rnd.NextDouble(), 2)
     $load = $rnd.Next(101)
     $isErrorValue = ($rnd.Next(8) -eq 3)
-    $errorTypeId = $rnd.Next(4)
-    $errorVal = $rnd.Next(1, 11)
-    # Use pre-calculated timestamp
+    
+    # Direct array access for maximum speed
     $ts = $timestamps[$i]
     $plc = $plcNames[$plcId]
     $status = $statusCodes[$statusId]
+    
     if ($isErrorValue) {
+        $errorTypeId = $rnd.Next(4)
         if ($errorTypeId -eq 0) {
-            $logLines[$i] = "ERROR; " + $ts + "; " + $plc + "; Sandextrator overload; " + $errorVal + "; " + $status + "; " + $operator + "; " + $batch + "; " + $temp + "; " + $load
+            $errorVal = $rnd.Next(1, 11)
+            $logLines[$i] = "ERROR; $ts; $plc; Sandextrator overload; $errorVal; $status; $operator; $batch; $temp; $load"
         } else {
             $errorType = $errorTypes[$errorTypeId]
-            $logLines[$i] = "ERROR; " + $ts + "; " + $plc + "; " + $errorType + "; ; " + $status + "; " + $operator + "; " + $batch + "; " + $temp + "; " + $load
+            $logLines[$i] = "ERROR; $ts; $plc; $errorType; ; $status; $operator; $batch; $temp; $load"
         }
     } else {
-        $logLines[$i] = "INFO; " + $ts + "; " + $plc + "; System running normally; ; " + $status + "; " + $operator + "; " + $batch + "; " + $temp + "; " + $load
+        $logLines[$i] = "INFO; $ts; $plc; System running normally; ; $status; $operator; $batch; $temp; $load"
     }
 }
 # Use fastest file writing method
